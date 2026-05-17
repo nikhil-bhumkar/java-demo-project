@@ -19,10 +19,10 @@ pipeline {
                     withCredentials([string(credentialsId: 'jira-token', variable: 'JIRA_TOKEN')]) {
                         sh """
                             curl -s -X POST \
-                              -u "${JIRA_USER}:${JIRA_TOKEN}" \
-                              -H "Content-Type: application/json" \
-                              -d '{"body": "🚀 Jenkins build started"}' \
-                              "${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment"
+                              -u '${JIRA_USER}':\$JIRA_TOKEN \
+                              -H 'Content-Type: application/json' \
+                              -d '{"body": "Jenkins build started"}' \
+                              '${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment'
                         """
                     }
                 }
@@ -57,10 +57,10 @@ pipeline {
                     withCredentials([string(credentialsId: 'jira-token', variable: 'JIRA_TOKEN')]) {
                         sh """
                             curl -s -X POST \
-                              -u "${JIRA_USER}:${JIRA_TOKEN}" \
-                              -H "Content-Type: application/json" \
-                              -d '{"body": "✅ Build + Deployment successful"}' \
-                              "${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment"
+                              -u '${JIRA_USER}':\$JIRA_TOKEN \
+                              -H 'Content-Type: application/json' \
+                              -d '{"body": "Build and deployment successful"}' \
+                              '${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment'
                         """
                     }
                 }
@@ -76,15 +76,14 @@ pipeline {
                 withCredentials([string(credentialsId: 'jira-token', variable: 'JIRA_TOKEN')]) {
                     sh """
                         curl -s -X POST \
-                          -u "${JIRA_USER}:${JIRA_TOKEN}" \
-                          -H "Content-Type: application/json" \
-                          -d '{"body": "❌ Jenkins pipeline failed"}' \
-                          "${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment"
+                          -u '${JIRA_USER}':\$JIRA_TOKEN \
+                          -H 'Content-Type: application/json' \
+                          -d '{"body": "Jenkins pipeline failed"}' \
+                          '${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment'
                     """
                 }
             }
             echo 'Pipeline failed!'
         }
-
     }
 }
