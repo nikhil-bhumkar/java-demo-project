@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-
         ISSUE_KEY = "UAT-1"
     }
 
@@ -20,7 +19,8 @@ pipeline {
         stage('Notify Jira - Build Started') {
             steps {
 
-                jiraComment issueKey: "${ISSUE_KEY}",
+                jiraComment site: 'jira',
+                    issueKey: "${ISSUE_KEY}",
                     body: "🚀 Jenkins build started"
             }
         }
@@ -58,26 +58,27 @@ pipeline {
         stage('Notify Jira - Success') {
             steps {
 
-                jiraComment issueKey: "${ISSUE_KEY}",
-                    body: "Build + Deployment successful"
+                jiraComment site: 'jira',
+                    issueKey: "${ISSUE_KEY}",
+                    body: "✅ Build + Deployment successful"
             }
         }
     }
 
     post {
 
-        success {
-
-            echo 'Application deployed successfully'
-        }
-
         failure {
 
-            jiraComment issueKey: "${ISSUE_KEY}",
-                body: "Jenkins pipeline failed"
+            jiraComment site: 'jira',
+                issueKey: "${ISSUE_KEY}",
+                body: "❌ Jenkins pipeline failed"
 
             echo 'Pipeline failed!'
         }
 
+        success {
+
+            echo 'Application deployed successfully'
+        }
     }
 }
