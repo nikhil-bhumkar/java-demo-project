@@ -39,6 +39,7 @@ pipeline {
                 cp target/*.jar /mnt/apps/
                 '''
             }
+
         }
         stage('Notify Jira - Success') {
             steps {
