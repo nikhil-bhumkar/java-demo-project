@@ -85,5 +85,6 @@ pipeline {
             }
             echo 'Pipeline failed!'
         }
+
     }
 }
