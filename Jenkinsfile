@@ -19,8 +19,7 @@ pipeline {
         stage('Notify Jira - Build Started') {
             steps {
 
-                jiraComment site: 'jira',
-                    issueKey: "${ISSUE_KEY}",
+                jiraComment issueKey: "${ISSUE_KEY}",
                     body: "🚀 Jenkins build started"
             }
         }
@@ -50,6 +49,7 @@ pipeline {
             steps {
 
                 sh '''
+                mkdir -p /mnt/apps
                 cp target/*.jar /mnt/apps/
                 '''
             }
@@ -58,8 +58,7 @@ pipeline {
         stage('Notify Jira - Success') {
             steps {
 
-                jiraComment site: 'jira',
-                    issueKey: "${ISSUE_KEY}",
+                jiraComment issueKey: "${ISSUE_KEY}",
                     body: "✅ Build + Deployment successful"
             }
         }
@@ -67,18 +66,17 @@ pipeline {
 
     post {
 
-        failure {
-
-            jiraComment site: 'jira',
-                issueKey: "${ISSUE_KEY}",
-                body: "❌ Jenkins pipeline failed"
-
-            echo 'Pipeline failed!'
-        }
-
         success {
 
             echo 'Application deployed successfully'
+        }
+
+        failure {
+
+            jiraComment issueKey: "${ISSUE_KEY}",
+                body: "❌ Jenkins pipeline failed"
+
+            echo 'Pipeline failed!'
         }
     }
 }
