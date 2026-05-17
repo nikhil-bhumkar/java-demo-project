@@ -1,7 +1,9 @@
 pipeline {
     agent any
     environment {
-        ISSUE_KEY = "UAT-1"
+        ISSUE_KEY  = "UAT-1"
+        JIRA_URL   = "https://nikhildevops.atlassian.net"
+        JIRA_USER  = "nikhilbhumkar22@gmail.com"
     }
     stages {
         stage('Checkout GitHub Repo') {
@@ -13,8 +15,15 @@ pipeline {
         }
         stage('Notify Jira - Build Started') {
             steps {
-                jiraComment issueKey: "${ISSUE_KEY}",
-                            body: "🚀 Jenkins build started"
+                withCredentials([string(credentialsId: 'jira-token', variable: 'JIRA_TOKEN')]) {
+                    sh """
+                        curl -s -X POST \
+                          -u "${JIRA_USER}:${JIRA_TOKEN}" \
+                          -H "Content-Type: application/json" \
+                          -d '{"body": "🚀 Jenkins build started"}' \
+                          "${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment"
+                    """
+                }
             }
         }
         stage('Build') {
@@ -35,16 +44,22 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                mkdir -p /mnt/apps
-                cp target/*.jar /mnt/apps/
+                    mkdir -p /mnt/apps
+                    cp target/*.jar /mnt/apps/
                 '''
             }
-
         }
         stage('Notify Jira - Success') {
             steps {
-                jiraComment issueKey: "${ISSUE_KEY}",
-                            body: "✅ Build + Deployment successful"
+                withCredentials([string(credentialsId: 'jira-token', variable: 'JIRA_TOKEN')]) {
+                    sh """
+                        curl -s -X POST \
+                          -u "${JIRA_USER}:${JIRA_TOKEN}" \
+                          -H "Content-Type: application/json" \
+                          -d '{"body": "✅ Build + Deployment successful"}' \
+                          "${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment"
+                    """
+                }
             }
         }
     }
@@ -53,9 +68,16 @@ pipeline {
             echo 'Application deployed successfully'
         }
         failure {
-            jiraComment issueKey: "${ISSUE_KEY}",
-                        body: "❌ Jenkins pipeline failed"
+            withCredentials([string(credentialsId: 'jira-token', variable: 'JIRA_TOKEN')]) {
+                sh """
+                    curl -s -X POST \
+                      -u "${JIRA_USER}:${JIRA_TOKEN}" \
+                      -H "Content-Type: application/json" \
+                      -d '{"body": "❌ Jenkins pipeline failed"}' \
+                      "${JIRA_URL}/rest/api/2/issue/${ISSUE_KEY}/comment"
+                """
+            }
             echo 'Pipeline failed!'
         }
     }
-}
+
