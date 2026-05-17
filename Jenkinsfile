@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         ISSUE_KEY = "UAT-1"
+		JIRA_SITE = 'https://nikhildevops.atlassian.net/' 
     }
 
     stages {
@@ -19,7 +20,8 @@ pipeline {
         stage('Notify Jira - Build Started') {
             steps {
 
-                jiraComment issueKey: "${ISSUE_KEY}",
+                jiraComment site: "${JIRA_SITE}",
+							issueKey: "${ISSUE_KEY}",
                     body: "🚀 Jenkins build started"
             }
         }
@@ -49,7 +51,6 @@ pipeline {
             steps {
 
                 sh '''
-                mkdir -p /mnt/apps
                 cp target/*.jar /mnt/apps/
                 '''
             }
@@ -58,7 +59,8 @@ pipeline {
         stage('Notify Jira - Success') {
             steps {
 
-                jiraComment issueKey: "${ISSUE_KEY}",
+                jiraComment site: "${JIRA_SITE}",
+							issueKey: "${ISSUE_KEY}",
                     body: "✅ Build + Deployment successful"
             }
         }
@@ -73,10 +75,11 @@ pipeline {
 
         failure {
 
-            jiraComment issueKey: "${ISSUE_KEY}",
+            jiraComment site: "${JIRA_SITE}",
+						issueKey: "${ISSUE_KEY}",
                 body: "❌ Jenkins pipeline failed"
 
             echo 'Pipeline failed!'
         }
     }
-}
+}	
