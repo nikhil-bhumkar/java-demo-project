@@ -56,5 +56,6 @@ pipeline {
                         body: "❌ Jenkins pipeline failed"
             echo 'Pipeline failed!'
         }
+
     }
 }
