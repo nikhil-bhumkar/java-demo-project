@@ -3,7 +3,7 @@ pipeline {
 
     environment {
 
-        ISSUE_KEY = "UAT"
+        ISSUE_KEY = "UAT-1"
     }
 
     stages {
