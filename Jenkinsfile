@@ -1,8 +1,24 @@
 pipeline {
     agent any
-    environment {
-        ISSUE_KEY = "UAT-1"
+    
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+                [key: 'ISSUE_KEY', value: '$.issue.key', defaultValue: 'UAT-1'],
+                [key: 'PR_ACTION', value: '$.action'],
+                [key: 'PR_MERGED', value: '$.pull_request.merged']
+            ],
+            token: 'github-token',
+            causeString: 'Triggered by GitHub PR merge',
+            regexpFilterText: '$PR_MERGED',
+            regexpFilterExpression: 'true'
+        )
     }
+    
+    environment {
+        ISSUE_KEY = "${env.ISSUE_KEY ?: 'UAT-1'}"
+    }
+    
     stages {
         stage('Checkout GitHub Repo') {
             steps {
@@ -48,14 +64,9 @@ pipeline {
         }
     }
     post {
-        success {
-            echo 'Application deployed successfully'
-        }
         failure {
             jiraComment issueKey: "${ISSUE_KEY}",
                         body: "❌ Jenkins pipeline failed"
-            echo 'Pipeline failed!'
         }
-
     }
 }
