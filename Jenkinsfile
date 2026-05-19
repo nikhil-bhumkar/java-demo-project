@@ -1,6 +1,7 @@
 pipeline {
     agent any
 
+
     environment {
         VERSION = "${BUILD_NUMBER}"
     }
