@@ -12,7 +12,8 @@ pipeline {
                 git branch: 'main',
                     credentialsId: 'github-creds',
                     url: 'https://github.com/nikhil-bhumkar/java-demo-project.git'
-            }
+
+		}
         }
 
         stage('Git Change Detection') {
