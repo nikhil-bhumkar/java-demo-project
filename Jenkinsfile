@@ -32,10 +32,8 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    
                     echo "Previous Commit: ${PREVIOUS_COMMIT}"
                     echo "Current Commit : ${CURRENT_COMMIT}"
-                
 
                     sh """
                     echo "Changed Files Between Commits:"
@@ -139,9 +137,9 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh '''
-              
+
                 echo "Deploying Application..."
-               
+
                 mkdir -p /mnt/apps
 
                 cp target/*.jar /mnt/apps/java-demo-project.jar
@@ -161,19 +159,21 @@ pipeline {
                 '''
             }
         }
-
-        
     }
 
     post {
 
         success {
- 
+
             echo 'Build, Test, Package and Deployment completed successfully.'
+
+            sh '''
+            curl -X POST "https://api-private.atlassian.com/automation/webhooks/jira/a/57f62d85-1b6e-4a44-af5e-0927141b6746/019e4453-d451-7d8f-9462-0dfdd31b50c4"
+            '''
         }
 
         failure {
-            echo ' PIPELINE FAILED'
+            echo 'PIPELINE FAILED'
             echo 'Check Jenkins console logs for errors.'
         }
 
