@@ -191,9 +191,14 @@ pipeline {
             echo 'Check Jenkins console logs for errors.'
         }
 
+feature/JG-10
+        
+	always {
+=======
 
         always {
 
+ main
             echo 'Pipeline execution completed.'
         }
 
