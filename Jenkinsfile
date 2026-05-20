@@ -182,11 +182,15 @@ pipeline {
             echo 'Build, Test, Package and Deployment completed successfully.'
         }
 
-        failure {
 
+       failure {
+            echo ' PIPELINE FAILED'
+        failure {
             echo 'PIPELINE FAILED'
+ main
             echo 'Check Jenkins console logs for errors.'
         }
+
 
         always {
 
