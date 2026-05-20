@@ -169,10 +169,11 @@ pipeline {
             echo 'Build, Test, Package and Deployment completed successfully.'
         }
 
-        failure {
+       failure {
             echo ' PIPELINE FAILED'
             echo 'Check Jenkins console logs for errors.'
         }
+
 
         always {
             echo 'Pipeline execution completed.'
