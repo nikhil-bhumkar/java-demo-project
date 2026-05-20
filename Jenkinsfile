@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -13,9 +14,7 @@ pipeline {
                 git branch: 'main',
                     credentialsId: 'github-creds',
                     url: 'https://github.com/nikhil-bhumkar/java-demo-project.git'
-
-	
-	    }
+            }
         }
 
         stage('Git Change Detection') {
@@ -32,8 +31,10 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    
                     echo "Previous Commit: ${PREVIOUS_COMMIT}"
                     echo "Current Commit : ${CURRENT_COMMIT}"
+                
 
                     sh """
                     echo "Changed Files Between Commits:"
@@ -137,9 +138,9 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 sh '''
-
+              
                 echo "Deploying Application..."
-
+               
                 mkdir -p /mnt/apps
 
                 cp target/*.jar /mnt/apps/java-demo-project.jar
@@ -160,51 +161,23 @@ pipeline {
             }
         }
 
-        stage('Update Jira QA Status') {
-            steps {
-                sh '''
-                curl -X POST \
-                -H "Content-Type: application/json" \
-                -H "X-Automation-Webhook-Token: 4b68e430d8045467ecf214c0c38b5b104af26d45" \
-                --data '{
-                  "issues": ["JG-6"]
-                }' \
-                "https://api-private.atlassian.com/automation/webhooks/jira/a/57f62d85-1b6e-4a44-af5e-0927141b6746/019e4453-d451-7d8f-9462-0dfdd31b50c4"
-                '''
-            }
-        }
+        
     }
 
     post {
 
         success {
-
+ 
             echo 'Build, Test, Package and Deployment completed successfully.'
         }
 
-
-       failure {
-            echo ' PIPELINE FAILED'
         failure {
-            echo 'PIPELINE FAILED'
- main
+            echo ' PIPELINE FAILED'
             echo 'Check Jenkins console logs for errors.'
         }
 
-feature/JG-10
-        
-	always {
-=======
-
         always {
-
- main
             echo 'Pipeline execution completed.'
         }
- fet/JG-11
-     }
-=======
-
     }
-      main
 }
