@@ -201,6 +201,10 @@ feature/JG-10
  main
             echo 'Pipeline execution completed.'
         }
+ fet/JG-11
+     }
+=======
 
     }
+      main
 }
