@@ -174,7 +174,8 @@ pipeline {
             echo 'Check Jenkins console logs for errors.'
         }
 
-        always {
+        
+	always {
             echo 'Pipeline execution completed.'
         }
     }
