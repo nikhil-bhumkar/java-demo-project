@@ -1,6 +1,7 @@
-pipeline {
-    agent any
 
+pipeline {
+
+    agent any
 
     environment {
         VERSION = "${BUILD_NUMBER}"
@@ -10,7 +11,8 @@ pipeline {
 
         stage('Checkout GitHub Repo') {
             steps {
-                git branch: 'main',
+
+                git branch: "${env.BRANCH_NAME}",
                     credentialsId: 'github-creds',
                     url: 'https://github.com/nikhil-bhumkar/java-demo-project.git'
             }
@@ -18,6 +20,7 @@ pipeline {
 
         stage('Git Change Detection') {
             steps {
+
                 script {
 
                     PREVIOUS_COMMIT = sh(
@@ -30,10 +33,8 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    
                     echo "Previous Commit: ${PREVIOUS_COMMIT}"
                     echo "Current Commit : ${CURRENT_COMMIT}"
-                
 
                     sh """
                     echo "Changed Files Between Commits:"
@@ -62,10 +63,11 @@ pipeline {
         }
 
         /*
-        Fortify SCA Scan Stage
+        OPTIONAL SECURITY SCAN
 
         stage('Fortify Scan') {
             steps {
+
                 sh '''
                 echo "Starting Fortify Scan..."
 
@@ -80,16 +82,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Fortify Report') {
-            steps {
-                sh '''
-                ReportGenerator -format html \
-                -f fortify-report.html \
-                java-demo-project.fpr
-                '''
-            }
-        }
         */
 
         stage('Package') {
@@ -98,11 +90,22 @@ pipeline {
             }
         }
 
+        stage('Archive Artifact') {
+            steps {
+
+                archiveArtifacts artifacts: 'target/*.jar',
+                fingerprint: true
+
+                echo "Artifact Archived Successfully"
+            }
+        }
+
         /*
-        Nexus Upload + Download
+        OPTIONAL NEXUS UPLOAD
 
         stage('Upload JAR to Nexus') {
             steps {
+
                 withCredentials([usernamePassword(
                     credentialsId: 'nexus-creds',
                     usernameVariable: 'NEXUS_USER',
@@ -119,65 +122,46 @@ pipeline {
                 }
             }
         }
-
-        stage('Download JAR from Nexus') {
-            steps {
-                sh '''
-                echo "Downloading JAR from Nexus..."
-
-                mkdir -p /mnt/apps
-
-                curl -L -o /mnt/apps/java-demo-project.jar \
-                http://YOUR_NEXUS_IP:8081/repository/maven-releases/com/demo/java-demo-project/${VERSION}/java-demo-project-${VERSION}.jar
-                '''
-            }
-        }
         */
-
-        stage('Deploy Application') {
-            steps {
-                sh '''
-              
-                echo "Deploying Application..."
-               
-                mkdir -p /mnt/apps
-
-                cp target/*.jar /mnt/apps/java-demo-project.jar
-
-                echo "Stopping old application if running..."
-
-                pkill -f java-demo-project.jar || true
-
-                sleep 5
-
-                echo "Starting new application..."
-
-                nohup java -jar /mnt/apps/java-demo-project.jar \
-                > /mnt/apps/app.log 2>&1 &
-
-                echo "Application Started Successfully"
-                '''
-            }
-        }
-
-        
     }
 
     post {
 
         success {
- 
-            echo 'Build, Test, Package and Deployment completed successfully.'
+
+            script {
+
+                echo 'CI PIPELINE SUCCESS'
+
+                def JIRA_ID = env.BRANCH_NAME.tokenize('-')[0]
+
+                echo "Jira Ticket: ${JIRA_ID}"
+
+                sh """
+                curl -X POST \
+                -H "Content-Type: application/json" \
+                -H "X-Automation-Webhook-Token: 4b68e430d8045467ecf214c0c38b5b104af26d45" \
+                --data '{
+                  "issues": ["${JIRA_ID}"]
+                }' \
+                "https://api-private.atlassian.com/automation/webhooks/jira/a/57f62d85-1b6e-4a44-af5e-0927141b6746/019e4453-d451-7d8f-9462-0dfdd31b50c4"
+                """
+            }
         }
 
         failure {
-            echo ' PIPELINE FAILED'
-            echo 'Check Jenkins console logs for errors.'
+
+            echo 'CI PIPELINE FAILED'
+            echo 'Check Jenkins console logs.'
         }
 
         always {
             echo 'Pipeline execution completed.'
 
        	}
+
+            echo 'CI Pipeline execution completed.'
+        }
+     main
     }
 }
