@@ -156,8 +156,12 @@ pipeline {
         }
 
         always {
+            echo 'Pipeline execution completed.'
+
+       	}
 
             echo 'CI Pipeline execution completed.'
         }
+     main
     }
 }
